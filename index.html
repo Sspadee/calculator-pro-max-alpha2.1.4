@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Calculator Pro Max</title>
+<style>
+body {
+  margin:0;
+  font-family: 'Courier', monospace;
+  background: #321247; /* initial purple */
+  color:#FFFFFF;
+  transition: 0.5s all;
+}
+
+/* Glow effect on outputs */
+.glow {
+  animation: glow 1s ease;
+}
+@keyframes glow {
+  0%{ text-shadow:0 0 5px #fff; }
+  50%{ text-shadow:0 0 20px #FFD700,0 0 30px #FF69B4; }
+  100%{ text-shadow:0 0 5px #fff; }
+}
+
+/* Container */
+.calculator-section {
+  max-width:700px;
+  margin:30px auto;
+  padding:20px;
+  border-radius:15px;
+  background:rgba(0,0,0,0.3);
+  box-shadow:0 0 15px #FF69B4;
+}
+h1,h2 { font-weight:bold; text-align:center; }
+h1{font-size:45px;}
+h2{font-size:25px;}
+button {
+  font-family:'Courier', monospace;
+  font-size:15px;
+  padding:10px 15px;
+  margin:3px;
+  border-radius:8px;
+  border:none;
+  cursor:pointer;
+  background-color:#4B2D73;
+  color:#FFFFFF;
+  transition:0.3s all;
+}
+button:hover{
+  background-color:#6D3EA1;
+  box-shadow:0 0 10px #FFD700;
+}
+.button-panel{text-align:center; margin-bottom:15px;}
+input{
+  font-family:'Courier', monospace;
+  font-size:15px;
+  padding:10px;
+  margin:5px auto;
+  display:block;
+  width:90%;
+  border-radius:8px;
+  border:none;
+}
+.output,.explanation,.history{
+  background:rgba(255,255,255,0.05);
+  padding:10px;
+  margin-top:10px;
+  border-radius:10px;
+  min-height:30px;
+}
+.hidden{display:none;}
+select{
+  font-family:'Courier', monospace;
+  font-size:15px;
+  padding:5px;
+  border-radius:5px;
+  border:none;
+}
+</style>
+</head>
+<body>
+<h1>Calculator Pro Max</h1>
+
+<!-- Main Menu -->
+<div id="main-menu" class="calculator-section">
+  <h2>Main Menu</h2>
+  <div class="button-panel">
+    <button onclick="showSection('arithmetic')">Arithmetic Mode</button>
+    <button onclick="showSection('statistics')">Statistics Mode</button>
+  </div>
+</div>
+
+<!-- Arithmetic Mode -->
+<div id="arithmetic" class="calculator-section hidden">
+  <h2>Arithmetic Mode</h2>
+  <input type="text" id="arith-input" placeholder="Enter expression e.g. 2+2*5">
+  <div class="button-panel">
+    <button onclick="addToArithInput('+')">+</button>
+    <button onclick="addToArithInput('-')">-</button>
+    <button onclick="addToArithInput('*')">×</button>
+    <button onclick="addToArithInput('/')">÷</button>
+    <button onclick="addToArithInput('%')">%</button>
+    <button onclick="addToArithInput('²')">²</button>
+    <button onclick="addToArithInput('√')">√</button>
+    <button onclick="clearInput('arith-input')">C</button>
+  </div>
+  <div class="button-panel">
+    <button onclick="calculateArithmetic()">Calculate</button>
+    <button onclick="showSection('main-menu')">Back to Menu</button>
+  </div>
+  <div class="output" id="arith-output"></div>
+  <div class="explanation" id="arith-explanation"></div>
+</div>
+
+<!-- Statistics Mode -->
+<div id="statistics" class="calculator-section hidden">
+  <h2>Statistics Mode</h2>
+  <input type="text" id="stats-input" placeholder="Enter numbers separated by commas or expressions">
+  
+  <div class="button-panel">
+    <button onclick="addToStatsInput('+')">+</button>
+    <button onclick="addToStatsInput('-')">-</button>
+    <button onclick="addToStatsInput('*')">×</button>
+    <button onclick="addToStatsInput('/')">÷</button>
+    <button onclick="addToStatsInput('%')">%</button>
+    <button onclick="addToStatsInput('²')">²</button>
+    <button onclick="addToStatsInput('√')">√</button>
+    <button onclick="clearInput('stats-input')">C</button>
+  </div>
+
+  <div class="button-panel">
+    <button onclick="calculateMean()">Mean</button>
+    <button onclick="calculateMedian()">Median</button>
+    <button onclick="calculateMode()">Mode</button>
+    <button onclick="calculateStdDev()">Std Dev</button>
+    <button onclick="calculateVariance()">Variance</button>
+    <button onclick="calculatePercentage()">Percentage</button>
+    <button onclick="calculatePercentageChange()">Percentage Change</button>
+    <button onclick="calculateBestValue()">Best Value</button>
+    <button onclick="calculateProbability()">Probability</button>
+  </div>
+
+  <h2>T-Table & Chi-Squared</h2>
+  <input type="number" id="df-input" placeholder="Degrees of Freedom">
+  <input type="number" id="cl-input" placeholder="Confidence Level (%)">
+  <div class="button-panel">
+    <button onclick="calculateTTable()">T-Value</button>
+    <button onclick="calculateChiSquared()">Chi²</button>
+    <button onclick="showSection('main-menu')">Back to Menu</button>
+  </div>
+
+  <h2>Currency Conversion</h2>
+  <input type="number" id="currency-value-stats" placeholder="Value">
+  <select id="from-currency-stats">
+    <option value="USD">USD ($)</option>
+    <option value="GBP">GBP (£)</option>
+    <option value="EUR">EUR (€)</option>
+  </select>
+  <select id="to-currency-stats">
+    <option value="USD">USD ($)</option>
+    <option value="GBP">GBP (£)</option>
+    <option value="EUR">EUR (€)</option>
+  </select>
+  <button onclick="convertCurrencyStats()">Convert</button>
+  <div class="output" id="currency-output-stats"></div>
+  <div class="explanation" id="currency-explanation-stats"></div>
+
+  <div class="output" id="stats-output"></div>
+  <div class="explanation" id="stats-explanation"></div>
+  <div class="history" id="stats-history"></div>
+</div>
+
+<script>
+// Navigation
+function showSection(id){
+  document.querySelectorAll('.calculator-section').forEach(s=>s.classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+}
+
+// Clear input
+function clearInput(id){document.getElementById(id).value='';}
+
+// Add symbols
+function addToArithInput(v){let i=document.getElementById('arith-input'); i.value=(v==='²'?i.value+'**2':v==='√'?i.value+'Math.sqrt(':v==='×'?i.value+'*':v==='÷'?i.value+'/':i.value+v);}
+function addToStatsInput(v){let i=document.getElementById('stats-input'); i.value=(v==='²'?i.value+'**2':v==='√'?i.value+'Math.sqrt(':v==='×'?i.value+'*':v==='÷'?i.value+'/':i.value+v);}
+
+// Random purple generator
+function randomPurple(){
+  let r=Math.floor(Math.random()*53)+128;
+  let g=Math.floor(Math.random()*101);
+  let b=Math.floor(Math.random()*128)+128;
+  return `rgb(${r},${g},${b})`;
+}
+
+// Trigger output glow and background color change
+function triggerGlowAndBackground(out){
+  out.classList.add('glow');
+  document.body.style.backgroundColor=randomPurple();
+  setTimeout(()=>out.classList.remove('glow'),1000);
+}
+
+// Arithmetic
+function calculateArithmetic(){
+  let expr=document.getElementById('arith-input').value;
+  try{
+    let result=eval(expr);
+    let out=document.getElementById('arith-output'), exp=document.getElementById('arith-explanation');
+    out.innerHTML=`Result: ${result}`;
+    exp.innerHTML=`Evaluated: ${expr} = ${result}`;
+    triggerGlowAndBackground(out);
+  } catch(e){alert('Invalid expression');}
+}
+
+// Parse numbers
+function parseNumbers(){
+  let raw=document.getElementById('stats-input').value.split(',');
+  return raw.map(n=>parseFloat(n.trim())).filter(n=>!isNaN(n));
+}
+
+// Statistics calculations
+function calculateMean(){
+  let nums=parseNumbers(); if(nums.length===0){alert('Enter numbers');return;}
+  let sum=nums.reduce((a,b)=>a+b,0), mean=sum/nums.length;
+  let out=document.getElementById('stats-output'), exp=document.getElementById('stats-explanation');
+  out.innerHTML=`Mean: ${mean}`;
+  exp.innerHTML=`Step 1: Add numbers = ${sum}<br>Step 2: Count = ${nums.length}<br>Step 3: Divide sum/count = ${mean}`;
+  triggerGlowAndBackground(out);
+}
+
+function calculateMedian(){
+  let nums=parseNumbers(); if(nums.length===0){alert('Enter numbers');return;}
+  nums.sort((a,b)=>a-b);
+  let median = nums.length%2===0 ? (nums[nums.length/2-1]+nums[nums.length/2])/2 : nums[Math.floor(nums.length/2)];
+  let out=document.getElementById('stats-output'), exp=document.getElementById('stats-explanation');
+  out.innerHTML=`Median: ${median}`;
+  exp.innerHTML=`Sorted numbers: ${nums.join(', ')}<br>Median calculation complete.`;
+  triggerGlowAndBackground(out);
+}
+
+function calculateMode(){
+  let nums=parseNumbers(); if(nums.length===0){alert('Enter numbers');return;}
+  let freq={}; nums.forEach(n=>freq[n]=(freq[n]||0)+1);
+  let maxFreq=Math.max(...Object.values(freq));
+  let mode=Object.keys(freq).filter(k=>freq[k]===maxFreq);
+  let out=document.getElementById('stats-output'), exp=document.getElementById('stats-explanation');
+  out.innerHTML=`Mode: ${mode.join(', ')}`;
+  exp.innerHTML=`Frequency table: ${JSON.stringify(freq)}`;
+  triggerGlowAndBackground(out);
+}
+
+function calculateStdDev(){
+  let nums=parseNumbers(); if(nums.length===0){alert('Enter numbers');return;}
+  let mean=nums.reduce((a,b)=>a+b,0)/nums.length;
+  let variance=nums.reduce((a,b)=>a+(b-mean)**2,0)/nums.length;
+  let stdDev=Math.sqrt(variance);
+  let out=document.getElementById('stats-output'), exp=document.getElementById('stats-explanation');
+  out.innerHTML=`Std Dev: ${stdDev.toFixed(3)}`;
+  exp.innerHTML=`Mean=${mean.toFixed(2)}, Variance=${variance.toFixed(3)}, Std Dev=√Variance=${stdDev.toFixed(3)}`;
+  triggerGlowAndBackground(out);
+}
+
+function calculateVariance(){
+  let nums=parseNumbers(); if(nums.length===0){alert('Enter numbers');return;}
+  let mean=nums.reduce((a,b)=>a+b,0)/nums.length;
+  let variance=nums.reduce((a,b)=>a+(b-mean)**2,0)/nums.length;
+  let out=document.getElementById('stats-output'), exp=document.getElementById('stats-explanation');
+  out.innerHTML=`Variance: ${variance.toFixed(3)}`;
+  exp.innerHTML=`Mean=${mean.toFixed(2)}, Variance=${variance.toFixed(3)}`;
+  triggerGlowAndBackground(out);
+}
+
+function calculatePercentage(){
+  let nums=parseNumbers(); if(nums.length<2){alert('Enter numerator and denominator');return;}
+  let perc=(nums[0]/nums[1]*100).toFixed(2);
+  let out=document.getElementById('stats-output'), exp=document.getElementById('stats-explanation');
+  out.innerHTML=`Percentage: ${perc}%`;
+  exp.innerHTML=`${nums[0]} ÷ ${nums[1]} × 100 = ${perc}%`;
+  triggerGlowAndBackground(out);
+}
+
+function calculatePercentageChange(){
+  let nums=parseNumbers(); if(nums.length<2){alert('Enter old and new values');return;}
+  let change=((nums[1]-nums[0])/nums[0]*100).toFixed(2);
+  let out=document.getElementById('stats-output'), exp=document.getElementById('stats-explanation');
+  out.innerHTML=`Percentage Change: ${change}%`;
+  exp.innerHTML=`(${nums[1]}-${nums[0]}) / ${nums[0]} × 100 = ${change}%`;
+  triggerGlowAndBackground(out);
+}
+
+function calculateBestValue(){
+  let nums=parseNumbers(); if(nums.length===0){alert('Enter numbers');return;}
+  let best=Math.max(...nums);
+  let out=document.getElementById('stats-output'), exp=document.getElementById('stats-explanation');
+  out.innerHTML=`Best Value: ${best}`;
+  exp.innerHTML=`Numbers: ${nums.join(', ')}<br>Maximum = ${best}`;
+  triggerGlowAndBackground(out);
+}
+
+function calculateProbability(){ alert('Probability calculator coming soon'); }
+function calculateTTable(){ alert('T-Table calculator coming soon'); }
+function calculateChiSquared(){ alert('Chi-Squared calculator coming soon'); }
+
+/* Currency */
+const currencyRates={USD:1,GBP:0.81,EUR:0.93};
+function convertCurrencyStats(){
+  const value=parseFloat(document.getElementById('currency-value-stats').value);
+  const from=document.getElementById('from-currency-stats').value;
+  const to=document.getElementById('to-currency-stats').value;
+  if(isNaN(value)){alert('Enter value'); return;}
+  const converted=value/currencyRates[from]*currencyRates[to];
+  document.getElementById('currency-output-stats').innerHTML=`Converted: ${converted.toFixed(2)} ${to}`;
+  document.getElementById('currency-explanation-stats').innerHTML=`Step 1: Convert to USD = ${(value/currencyRates[from]).toFixed(2)}<br>Step 2: Multiply by ${to} rate = ${converted.toFixed(2)}`;
+  triggerGlowAndBackground(document.getElementById('currency-output-stats'));
+}
+</script>
+</body>
+</html>
